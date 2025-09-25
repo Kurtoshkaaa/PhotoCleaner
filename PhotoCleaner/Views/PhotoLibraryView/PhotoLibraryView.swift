@@ -10,14 +10,14 @@ import PhotosUI
 import Lottie
 
 struct PhotosLibraryView: View {
-
+    
     /*
      MARK: - Properties
      */
     
     @StateObject
     private var viewModel = PhotosLibraryViewModel()
-
+    
     /*
      MARK: - Body
      */
@@ -31,9 +31,9 @@ struct PhotosLibraryView: View {
                 
                 LottieView(animation: .named("Photos"))
                     .playing(loopMode: .loop)
-                    .frame(width: 32.0.scaled, height: 32.0.scaled)
+                    .frame(width: 48.0.scaled, height: 48.0.scaled)
             }
-
+            
             Photos
         }
         .task {
@@ -50,11 +50,25 @@ struct PhotosLibraryView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-                .ignoresSafeArea()
+            .ignoresSafeArea()
+        }
+        .overlay(alignment: .topTrailing) {
+            Button(action: {
+                //
+            }) {
+                Text("Select")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.color1)
+                    .frame(height: 24.0.scaled)
+                    .cornerRadius(12.0.scaled)
+            }
+            .buttonStyle(.glass)
+            .padding(.trailing, 16.0.scaled)
+            .padding(.top, 8.0.scaled)
         }
         .loadingOverlay
     }
-
+    
     @ViewBuilder
     private var Photos: some View {
         switch viewModel.photoLibraryStatus {
@@ -64,18 +78,16 @@ struct PhotosLibraryView: View {
                 let spacing: CGFloat = 2.0.scaled
                 let totalSpacing = spacing * CGFloat(columnsCount - 1)
                 let cell = floor((geometryReader.size.width - totalSpacing) / CGFloat(columnsCount))
-
-                let columns = Array(repeating: GridItem(.fixed(cell), spacing: spacing),
-                                    count: columnsCount)
-
+                
+                let columns = Array(repeating: GridItem(.fixed(cell), spacing: spacing), count: columnsCount)
+                
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: spacing) {
                         ForEach(viewModel.images, id: \.self) { image in
                             Image(uiImage: image)
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: cell, height: cell) // квадрат
-                                .clipped()
+                                .frame(width: cell, height: cell)
                                 .cornerRadius(8.0.scaled)
                         }
                     }
@@ -103,7 +115,7 @@ struct PhotosLibraryView: View {
                 .buttonStyle(.glass)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-
+            
         default:
             ProgressView().controlSize(.large)
         }

@@ -93,6 +93,7 @@ struct SettingsView: View {
                 }
             }
             .padding(.bottom, 16.0.scaled)
+            .padding(.horizontal, 16.0.scaled)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background {
                 LinearGradient(

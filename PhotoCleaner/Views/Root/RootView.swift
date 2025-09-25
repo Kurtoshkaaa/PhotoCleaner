@@ -39,7 +39,6 @@ struct RootView: View {
                 }
             }
             .tint(.color1)
-            .padding(.bottom, 32.0.scaled)
             .frame(maxWidth: .infinity,maxHeight: .infinity)
             .ignoresSafeArea()
             .environmentObject(router)
