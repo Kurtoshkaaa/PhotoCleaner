@@ -34,7 +34,7 @@ struct SwipeView: View {
                     .frame(width: 48.0.scaled, height: 48.0.scaled)
             }
         }
-        .padding(24.0.scaled)
+        .padding(.bottom, 16.0.scaled)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background {
             LinearGradient(

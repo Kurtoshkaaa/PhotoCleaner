@@ -92,7 +92,7 @@ struct SettingsView: View {
                         .font(.system(size: 13.0.scaled, weight: .regular))
                 }
             }
-            .padding(24.0.scaled)
+            .padding(.bottom, 16.0.scaled)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background {
                 LinearGradient(

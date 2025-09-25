@@ -5,53 +5,95 @@
 //  Created by Alexey Kurto on 25.09.25.
 //
 
-
 import SwiftUI
 import Photos
 import Combine
 
-class PhotosLibraryViewModel: ObservableObject {
-    @Published var images: [UIImage] = []
+@MainActor
+final class PhotosLibraryViewModel: NSObject, ObservableObject, PHPhotoLibraryChangeObserver {
     
-    init() {
-        loadPhotos()
+    /*
+     MARK: - Properties
+     */
+    
+    @Published
+    var images: [UIImage] = []
+    
+    @Published
+    var photoLibraryStatus: PHAuthorizationStatus = .notDetermined
+
+    private let manager = PHCachingImageManager.default()
+    private var fetchResult: PHFetchResult<PHAsset>?
+
+    /*
+     MARK: - Life circle
+     */
+    
+    override init() {
+        super.init()
+        
+        PHPhotoLibrary.shared().register(self)
     }
     
+    /*
+     MARK: - Methods
+     */
+    
+    func updateUI() async {
+        let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+        photoLibraryStatus = status
+        
+        guard
+            status == .authorized || status == .limited
+        else { return }
+
+        loadPhotos()
+    }
+
     private func loadPhotos() {
         let fetchOptions = PHFetchOptions()
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-        
-        let manager = PHCachingImageManager()
-        let targetSize = CGSize(width: 200, height: 200)
-        
-        assets.enumerateObjects { asset, _, _ in
-            manager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: nil) { image, _ in
-                if let img = image {
-                    DispatchQueue.main.async {
-                        self.images.append(img)
-                    }
-                }
-            }
-        }
-    }
-}
+        fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
 
-struct PhotoLibraryView2: View {
-    @StateObject private var viewModel = PhotosLibraryViewModel()
-    
-    var body: some View {
-        ScrollView {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
-                ForEach(viewModel.images, id: \.self) { img in
-                    Image(uiImage: img)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 100, height: 100)
-                        .clipped()
-                        .cornerRadius(8)
-                }
+        images.removeAll()
+        
+        let targetSize = CGSize(width: 200.0.scaled, height: 200.0.scaled)
+
+        fetchResult?.enumerateObjects { [weak self] asset, _, _ in
+            guard
+                let self
+            else { return }
+            
+            let photoConfigurations = PHImageRequestOptions()
+            
+            photoConfigurations.deliveryMode = .highQualityFormat
+            photoConfigurations.resizeMode = .fast
+            self.manager.requestImage(
+                for: asset,
+                targetSize: targetSize,
+                contentMode: .aspectFill,
+                options: photoConfigurations
+            ) { photo, _ in
+                guard
+                    let photo
+                else { return }
+                
+                self.images.append(photo)
             }
         }
     }
+
+    func photoLibraryDidChange(_ changeInstance: PHChange) {
+        guard
+            let fetchResult,
+            let details = changeInstance.changeDetails(for: fetchResult)
+        else { return }
+        
+        self.fetchResult = details.fetchResultAfterChanges
+        
+        Task { @MainActor in
+            self.loadPhotos()
+        }
+    }
+    
 }
