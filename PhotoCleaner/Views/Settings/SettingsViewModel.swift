@@ -66,7 +66,7 @@ final class SettingsViewModel: NSObject, ObservableObject {
             let presenter = UIApplication.shared.topViewController
         else { return }
 
-        let recipientEmail: String = "https://google.com"
+        let recipientEmail: String = "kurtoshka1993@gmail.com"
         let subject: String = "Support request"
         var body: String = "\n\n"
         

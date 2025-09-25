@@ -1,5 +1,5 @@
 //
-//  PhotoLibraryView.swift
+//  PhotosLibraryView.swift
 //  PhotoCleaner
 //
 //  Created by Alexey Kurto on 25.09.25.
@@ -8,17 +8,36 @@
 
 import SwiftUI
 import PhotosUI
+import Lottie
 
-struct PhotoLibraryView: View {
-    @State private var selectedItems: [PhotosPickerItem] = []
-    @State private var images: [UIImage] = []
+struct PhotosLibraryView: View {
+    
+    @State
+    private var selectedItems: [PhotosPickerItem] = []
+    @State
+    private var images: [UIImage] = []
+    
+    /*
+     MARK: - Body
+     */
     
     var body: some View {
-        VStack {
-            PhotosPicker("Выбрать фото", selection: $selectedItems, matching: .images, photoLibrary: .shared())
+        VStack(spacing: 24.0) {
+            HStack(spacing: 2.0.scaled) {
+                Text("Photos")
+                    .foregroundStyle(.color1)
+                    .font(.system(size: 28.0.scaled, weight: .bold))
+                    .multilineTextAlignment(.leading)
+                
+                LottieView(animation: .named("Photos"))
+                    .playing(loopMode: .loop)
+                    .frame(width: 32.0.scaled, height: 32.0.scaled)
+            }
+            
+            PhotosPicker("Select photo", selection: $selectedItems, matching: .images, photoLibrary: .shared())
                 .padding()
             
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
                     ForEach(images, id: \.self) { image in
                         Image(uiImage: image)

@@ -37,9 +37,9 @@ enum Section: CaseIterable, Hashable {
     var view: some View {
         switch self {
         case .photo:
-            PhotoLibraryView()
+            PhotosLibraryView()
         case .swipe:
-            PhotoLibraryView()
+            SwipeView()
         case .settings:
             SettingsView()
         }

@@ -27,10 +27,10 @@ struct RootView: View {
         NavigationStack(path: $router.navigationPath) {
             TabView {
                 Tab("Photos", systemImage: "photo.stack") {
-                    PhotoLibraryView()
+                    PhotosLibraryView()
                 }
                 
-                Tab("Swipe!", systemImage: "hand.draw") {
+                Tab("Swipe", systemImage: "hand.draw") {
                     SwipeView()
                 }
                 

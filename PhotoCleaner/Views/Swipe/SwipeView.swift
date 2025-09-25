@@ -22,7 +22,7 @@ struct SwipeView: View {
      */
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24.0.scaled) {
+        VStack(spacing: 24.0.scaled) {
             HStack(spacing: 2.0.scaled) {
                 Text("Swipe")
                     .foregroundStyle(.color1)
@@ -33,7 +33,6 @@ struct SwipeView: View {
                     .playing(loopMode: .loop)
                     .frame(width: 48.0.scaled, height: 48.0.scaled)
             }
-            
         }
         .padding(24.0.scaled)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

@@ -1,5 +1,5 @@
 //
-//  PhotoLibraryViewModel.swift
+//  PhotosLibraryViewModel.swift
 //  PhotoCleaner
 //
 //  Created by Alexey Kurto on 25.09.25.
@@ -10,7 +10,7 @@ import SwiftUI
 import Photos
 import Combine
 
-class PhotoLibraryViewModel: ObservableObject {
+class PhotosLibraryViewModel: ObservableObject {
     @Published var images: [UIImage] = []
     
     init() {
@@ -38,7 +38,7 @@ class PhotoLibraryViewModel: ObservableObject {
 }
 
 struct PhotoLibraryView2: View {
-    @StateObject private var viewModel = PhotoLibraryViewModel()
+    @StateObject private var viewModel = PhotosLibraryViewModel()
     
     var body: some View {
         ScrollView {
