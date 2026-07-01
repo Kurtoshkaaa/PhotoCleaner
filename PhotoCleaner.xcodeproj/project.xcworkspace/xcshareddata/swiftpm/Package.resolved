@@ -1,13 +1,13 @@
 {
-  "originHash" : "70fac0a97013b86040c6fd02b59627f4c8ed582aa0e4f9316efde797a2a3283b",
+  "originHash" : "eb4beb0037977f9070c85f3076ce630deb566ad4b6595d4c186dee3ac0fa4a06",
   "pins" : [
     {
       "identity" : "devicekit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/devicekit/DeviceKit.git",
       "state" : {
-        "revision" : "581df61650bc457ec00373a592a84be3e7468eb1",
-        "version" : "5.7.0"
+        "revision" : "56b997e8a61707218f9af09f32b2a1d1806fd792",
+        "version" : "5.8.0"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/airbnb/lottie-spm.git",
       "state" : {
-        "revision" : "04f2fd18cc9404a0a0917265a449002674f24ec9",
-        "version" : "4.5.2"
+        "revision" : "0aff16288f8dc1e3dab35cbf5cf45979673fd3df",
+        "version" : "4.6.1"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-core.git",
       "state" : {
-        "revision" : "15493076ad9fef22c16cc64cbfbf9e5b65c385f9",
-        "version" : "20.1.0"
+        "revision" : "b4192c46305570577c4d08df790fddec5ab3aa04",
+        "version" : "20.1.5"
       }
     },
     {
@@ -34,7 +34,7 @@
       "location" : "https://github.com/realm/realm-swift",
       "state" : {
         "branch" : "community",
-        "revision" : "6260534683132eb981338c7c39fd5e69205876e6"
+        "revision" : "ca03df491ec5e4bb8af0bca1e9957d08c10ec2da"
       }
     }
   ],

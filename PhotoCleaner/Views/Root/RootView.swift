@@ -19,28 +19,32 @@ struct RootView: View {
     @StateObject
     private var router = Router()
     
+    @State
+    private var selectedSection: Section = .photo
+    
     /*
      MARK: - Body
      */
     
     var body: some View {
         NavigationStack(path: $router.navigationPath) {
-            TabView {
-                Tab("Photos", systemImage: "photo.stack") {
+            TabView(selection: $selectedSection) {
+                Tab("Photos", systemImage: "photo.stack", value: Section.photo) {
                     PhotosLibraryView()
                 }
                 
-                Tab("Swipe", systemImage: "hand.draw") {
+                Tab("Swipe", systemImage: "hand.draw", value: Section.swipe) {
                     SwipeView()
                 }
                 
-                Tab("Settings", systemImage: "gear") {
-                    SettingsView()
+                Tab("Settings", systemImage: "gear", value: Section.settings) {
+                    SettingsView {
+                        selectedSection = .photo
+                    }
                 }
             }
             .tint(.color1)
             .frame(maxWidth: .infinity,maxHeight: .infinity)
-            .ignoresSafeArea()
             .environmentObject(router)
         }
     }

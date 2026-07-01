@@ -9,6 +9,7 @@ import SwiftUI
 import MessageUI
 import DeviceKit
 import Combine
+import Photos
 
 final class SettingsViewModel: NSObject, ObservableObject {
     
@@ -18,6 +19,17 @@ final class SettingsViewModel: NSObject, ObservableObject {
     
     @Published
     var applicationVersionTitle: String = ""
+    
+    @Published
+    var photoAccessTitle: String = ""
+    
+    var shareTitle: String {
+        guard
+            !AppID.isEmpty
+        else { return "Try PhotoCleaner" }
+        
+        return "Try PhotoCleaner: https://apps.apple.com/app/id\(AppID)"
+    }
     
     /*
      MARK: - Methods
@@ -31,6 +43,7 @@ final class SettingsViewModel: NSObject, ObservableObject {
         super.init()
         
         setupApplicationVersionTitle()
+        setupPhotoAccessTitle()
     }
     
     /*
@@ -52,12 +65,31 @@ final class SettingsViewModel: NSObject, ObservableObject {
         applicationVersionTitle = title
     }
     
+    func setupPhotoAccessTitle() {
+        switch PHPhotoLibrary.authorizationStatus(for: .readWrite) {
+        case .authorized:
+            photoAccessTitle = "Full Access"
+        case .limited:
+            photoAccessTitle = "Limited Access"
+        case .denied, .restricted:
+            photoAccessTitle = "No Access"
+        case .notDetermined:
+            photoAccessTitle = "Not Asked"
+        @unknown default:
+            photoAccessTitle = "Unknown"
+        }
+    }
+    
     func openURL(urlString: String) {
         guard
             let url = URL(string: urlString)
         else { return }
         
         UIApplication.shared.open(url)
+    }
+    
+    func openApplicationSettings() {
+        openURL(urlString: UIApplication.openSettingsURLString)
     }
     
     func showSupportMail() {
