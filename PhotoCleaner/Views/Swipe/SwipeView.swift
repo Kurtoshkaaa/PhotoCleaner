@@ -113,6 +113,7 @@ struct SwipeView: View {
      MARK: - Private views
      */
     
+    @ViewBuilder
     private var headerView: some View {
         HStack(spacing: 12.0.scaled) {
             HStack(spacing: 2.0.scaled) {
@@ -326,7 +327,7 @@ struct SwipeView: View {
     }
     
     private var actionBarView: some View {
-        HStack(spacing: 18.0.scaled) {
+        HStack(spacing: 16.0.scaled) {
             SwipeActionButton(
                 title: "Delete",
                 systemImage: "trash.fill",
@@ -553,16 +554,16 @@ private struct SwipeActionButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 6.0.scaled) {
+            VStack(spacing: 2.0.scaled) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 24.0.scaled, weight: .semibold))
+                    .font(.system(size: 16.0.scaled, weight: .semibold))
                 
                 Text(title)
-                    .font(.system(size: 13.0.scaled, weight: .semibold))
+                    .font(.system(size: 16.0.scaled, weight: .semibold))
             }
+            .padding(.vertical, 4.0.scaled)
             .foregroundStyle(tint)
             .frame(maxWidth: .infinity)
-            .frame(height: 68.0.scaled)
         }
         .buttonStyle(.glass)
     }
