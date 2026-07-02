@@ -23,22 +23,15 @@ struct PhotosLibraryView: View {
      */
     
     var body: some View {
-        VStack(spacing: 8.0) {
-            HStack(spacing: 2.0.scaled) {
-                Text("Photos")
-                    .foregroundStyle(.color1)
-                    .font(.system(size: 28.0.scaled, weight: .bold))
-                
-                LottieView(animation: .named("Photos"))
-                    .playing(loopMode: .loop)
-                    .frame(width: 48.0.scaled, height: 48.0.scaled)
-            }
+        VStack(spacing: 8.0.scaled) {
+            headerView
             
             Photos
         }
         .task {
             await viewModel.updateUI()
         }
+        .padding(.top, 8.0.scaled)
         .padding(.bottom, 16.0.scaled)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background {
@@ -52,21 +45,40 @@ struct PhotosLibraryView: View {
             )
             .ignoresSafeArea()
         }
-        .overlay(alignment: .topTrailing) {
-            Button(action: {
-                //
-            }) {
-                Text("Select")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(.color1)
-                    .frame(height: 24.0.scaled)
-                    .cornerRadius(12.0.scaled)
+        .overlay(alignment: .top) {
+            HStack {
+                Spacer()
+                
+                Button(action: {
+                    //
+                }) {
+                    Text("Select")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.color1)
+                        .frame(height: 24.0.scaled)
+                        .cornerRadius(12.0.scaled)
+                }
+                .buttonStyle(.glass)
             }
-            .buttonStyle(.glass)
-            .padding(.trailing, 16.0.scaled)
+            .frame(height: 48.0.scaled, alignment: .center)
+            .padding(.horizontal, 16.0.scaled)
             .padding(.top, 8.0.scaled)
         }
         .loadingOverlay
+    }
+    
+    private var headerView: some View {
+        HStack(spacing: 2.0.scaled) {
+            Text("Photos")
+                .foregroundStyle(.color1)
+                .font(.system(size: 28.0.scaled, weight: .bold))
+                .multilineTextAlignment(.center)
+            
+            LottieView(animation: .named("Photos"))
+                .playing(loopMode: .loop)
+                .frame(width: 48.0.scaled, height: 48.0.scaled)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
     }
     
     @ViewBuilder

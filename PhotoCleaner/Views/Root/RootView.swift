@@ -38,9 +38,7 @@ struct RootView: View {
                 }
                 
                 Tab("Settings", systemImage: "gear", value: Section.settings) {
-                    SettingsView {
-                        selectedSection = .photo
-                    }
+                    SettingsView()
                 }
             }
             .tint(.color1)

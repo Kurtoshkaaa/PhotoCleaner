@@ -21,11 +21,17 @@ struct SwipeView: View {
     @AppStorage("photoCleanerAskBeforeDeletingMarkedPhotos")
     private var askBeforeDeletingMarkedPhotos: Bool = true
     
+    @Environment(\.accessibilityReduceMotion)
+    private var accessibilityReduceMotion
+    
     @State
     private var dragOffset: CGSize = .zero
     
     @State
     private var isAnimatingSwipe: Bool = false
+    
+    @State
+    private var particleBurst: SwipeParticleBurst?
     
     @State
     private var isFinishConfirmationPresented: Bool = false
@@ -59,6 +65,16 @@ struct SwipeView: View {
                 endPoint: .bottom
             )
             .ignoresSafeArea()
+        }
+        .overlay(alignment: .top) {
+            HStack {
+                Spacer()
+                
+                finishButton
+            }
+            .frame(height: 48.0.scaled, alignment: .center)
+            .padding(.horizontal, 16.0.scaled)
+            .padding(.top, 8.0.scaled)
         }
         .confirmationDialog(
             "Delete marked photos?",
@@ -101,10 +117,7 @@ struct SwipeView: View {
             Text(viewModel.deleteErrorMessage ?? "")
         }
         .safeAreaInset(edge: .bottom, spacing: 0.0) {
-            actionBarView
-                .padding(.horizontal, 16.0.scaled)
-                .padding(.top, 8.0.scaled)
-                .padding(.bottom, 8.0.scaled)
+            bottomControlsView
         }
         .loadingOverlay
     }
@@ -115,31 +128,30 @@ struct SwipeView: View {
     
     @ViewBuilder
     private var headerView: some View {
-        HStack(spacing: 12.0.scaled) {
-            HStack(spacing: 2.0.scaled) {
-                Text("Swipe")
-                    .foregroundStyle(.color1)
-                    .font(.system(size: 28.0.scaled, weight: .bold))
-                    .multilineTextAlignment(.leading)
-                
-                LottieView(animation: .named("Swipe"))
-                    .playing(loopMode: .loop)
-                    .frame(width: 48.0.scaled, height: 48.0.scaled)
-            }
+        HStack(spacing: 2.0.scaled) {
+            Text("Swipe")
+                .foregroundStyle(.color1)
+                .font(.system(size: 28.0.scaled, weight: .bold))
+                .multilineTextAlignment(.center)
             
-            Spacer()
-            
-            Button(action: handleFinishSession) {
-                Text("Finish")
-                    .foregroundStyle(.color1)
-                    .font(.system(size: 15.0.scaled, weight: .semibold))
-                    .frame(height: 32.0.scaled)
-                    .padding(.horizontal, 14.0.scaled)
-            }
-            .buttonStyle(.glass)
-            .disabled(!viewModel.canFinishSession || viewModel.isLoading)
-            .opacity(viewModel.canFinishSession && !viewModel.isLoading ? 1.0 : 0.4)
+            LottieView(animation: .named("Swipe"))
+                .playing(loopMode: .loop)
+                .frame(width: 48.0.scaled, height: 48.0.scaled)
         }
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
+    
+    private var finishButton: some View {
+        Button(action: handleFinishSession) {
+            Text("Finish")
+                .font(.system(size: 17.0, weight: .semibold))
+                .foregroundColor(.color1)
+                .frame(height: 24.0.scaled)
+                .cornerRadius(12.0.scaled)
+        }
+        .buttonStyle(.glass)
+        .disabled(!viewModel.canFinishSession || viewModel.isLoading)
+        .opacity(viewModel.canFinishSession && !viewModel.isLoading ? 1.0 : 0.4)
     }
     
     @ViewBuilder
@@ -163,7 +175,6 @@ struct SwipeView: View {
                         VStack(spacing: 12.0.scaled) {
                             progressView
                             photoCardView(height: cardHeight)
-                            sessionStatsView
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     }
@@ -206,9 +217,12 @@ struct SwipeView: View {
     private func photoCardHeight(
         availableHeight: CGFloat
     ) -> CGFloat {
-        let reservedHeight = 188.0.scaled
-        let maximumHeight = 470.0.scaled
-        let minimumHeight = 300.0.scaled
+        let reservedHeight = CGFloat(76.0.scaled)
+        let maximumHeight = min(
+            CGFloat(620.0.scaled),
+            max(CGFloat(300.0.scaled), availableHeight - CGFloat(72.0.scaled))
+        )
+        let minimumHeight = min(CGFloat(300.0.scaled), maximumHeight)
         let candidateHeight = availableHeight - reservedHeight
         
         return max(
@@ -258,7 +272,7 @@ struct SwipeView: View {
             }
             .frame(maxWidth: .infinity)
             .overlay(alignment: .topLeading) {
-                if dragOffset.width < -24.0.scaled {
+                if dragOffset.width < -18.0.scaled {
                     SwipeDecisionBadge(
                         title: "Delete",
                         systemImage: "trash.fill",
@@ -268,7 +282,7 @@ struct SwipeView: View {
                 }
             }
             .overlay(alignment: .topTrailing) {
-                if dragOffset.width > 24.0.scaled {
+                if dragOffset.width > 18.0.scaled {
                     SwipeDecisionBadge(
                         title: "Keep",
                         systemImage: "checkmark.circle.fill",
@@ -279,25 +293,60 @@ struct SwipeView: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: 28.0.scaled))
             .swipeGlassSurface(cornerRadius: CGFloat(28.0.scaled), isInteractive: true)
+            .overlay {
+                if let particleBurst {
+                    SwipeParticleBurstView(direction: particleBurst.direction)
+                        .id(particleBurst.id)
+                }
+            }
             .offset(dragOffset)
-            .rotationEffect(.degrees(Double(dragOffset.width / 24.0)))
+            .rotationEffect(.degrees(cardRotationDegrees))
             .gesture(
-                DragGesture()
+                DragGesture(minimumDistance: CGFloat(6.0.scaled), coordinateSpace: .local)
                     .onChanged { gesture in
                         guard
                             !isAnimatingSwipe
                         else { return }
                         
-                        dragOffset = gesture.translation
+                        dragOffset = CGSize(
+                            width: gesture.translation.width,
+                            height: gesture.translation.height * 0.18
+                        )
                     }
                     .onEnded { gesture in
-                        handleDragEnd(translation: gesture.translation)
+                        handleDragEnd(gesture)
                     }
             )
             .animation(.spring(response: 0.34, dampingFraction: 0.86), value: dragOffset)
             .frame(height: height)
         } else {
             sessionCompleteView
+        }
+    }
+    
+    @ViewBuilder
+    private var bottomControlsView: some View {
+        if shouldShowBottomControls {
+            if #available(iOS 26.0, *) {
+                GlassEffectContainer(spacing: CGFloat(16.0.scaled)) {
+                    bottomControlsStack
+                }
+                .padding(.horizontal, 16.0.scaled)
+                .padding(.top, 8.0.scaled)
+                .padding(.bottom, 8.0.scaled)
+            } else {
+                bottomControlsStack
+                    .padding(.horizontal, 16.0.scaled)
+                    .padding(.top, 8.0.scaled)
+                    .padding(.bottom, 8.0.scaled)
+            }
+        }
+    }
+    
+    private var bottomControlsStack: some View {
+        VStack(spacing: 16.0.scaled) {
+            sessionStatsView
+            actionBarView
         }
     }
     
@@ -346,6 +395,15 @@ struct SwipeView: View {
         }
         .opacity(viewModel.currentPhoto == nil || viewModel.isLoading ? 0.45 : 1.0)
         .disabled(viewModel.currentPhoto == nil || viewModel.isLoading)
+    }
+    
+    private var shouldShowBottomControls: Bool {
+        switch viewModel.photoLibraryStatus {
+        case .authorized, .limited:
+            return !viewModel.photos.isEmpty
+        default:
+            return false
+        }
     }
     
     private var photoAccessView: some View {
@@ -426,20 +484,49 @@ struct SwipeView: View {
         }
     }
     
+    private var cardRotationDegrees: Double {
+        min(
+            10.0,
+            max(
+                -10.0,
+                Double(dragOffset.width / 28.0)
+            )
+        )
+    }
+    
     /*
      MARK: - Private methods
      */
     
     private func handleDragEnd(
-        translation: CGSize
+        _ gesture: DragGesture.Value
     ) {
-        if translation.width <= -110.0.scaled {
-            animateSwipe(.delete)
-        } else if translation.width >= 110.0.scaled {
-            animateSwipe(.keep)
+        if let direction = swipeDirection(for: gesture) {
+            animateSwipe(direction)
         } else {
-            dragOffset = .zero
+            withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                dragOffset = .zero
+            }
         }
+    }
+    
+    private func swipeDirection(
+        for gesture: DragGesture.Value
+    ) -> SwipeDirection? {
+        let translationThreshold = CGFloat(72.0.scaled)
+        let predictedThreshold = CGFloat(128.0.scaled)
+        let translationWidth = gesture.translation.width
+        let predictedWidth = gesture.predictedEndTranslation.width
+        
+        if translationWidth <= -translationThreshold || predictedWidth <= -predictedThreshold {
+            return .delete
+        }
+        
+        if translationWidth >= translationThreshold || predictedWidth >= predictedThreshold {
+            return .keep
+        }
+        
+        return nil
     }
     
     private func animateSwipe(
@@ -452,16 +539,20 @@ struct SwipeView: View {
         
         isAnimatingSwipe = true
         
-        let horizontalOffset = direction == .delete ? -620.0.scaled : 620.0.scaled
+        if !accessibilityReduceMotion {
+            particleBurst = SwipeParticleBurst(direction: direction)
+        }
         
-        withAnimation(.easeIn(duration: 0.18)) {
+        withAnimation(.spring(response: accessibilityReduceMotion ? 0.12 : 0.24, dampingFraction: 0.82)) {
             dragOffset = CGSize(
-                width: horizontalOffset,
-                height: dragOffset.height
+                width: direction.exitOffset,
+                height: dragOffset.height * 0.4
             )
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+        let completionDelay = accessibilityReduceMotion ? 0.1 : 0.28
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + completionDelay) {
             switch direction {
             case .delete:
                 viewModel.markCurrentPhotoForDeletion()
@@ -469,6 +560,7 @@ struct SwipeView: View {
                 viewModel.keepCurrentPhoto()
             }
             
+            particleBurst = nil
             dragOffset = .zero
             isAnimatingSwipe = false
         }
@@ -499,6 +591,146 @@ struct SwipeView: View {
 private enum SwipeDirection {
     case delete,
          keep
+    
+    var exitOffset: CGFloat {
+        switch self {
+        case .delete:
+            return CGFloat(-720.0.scaled)
+        case .keep:
+            return CGFloat(720.0.scaled)
+        }
+    }
+    
+    var particleTint: Color {
+        switch self {
+        case .delete:
+            return .red
+        case .keep:
+            return .green
+        }
+    }
+    
+    var horizontalSign: CGFloat {
+        switch self {
+        case .delete:
+            return -1.0
+        case .keep:
+            return 1.0
+        }
+    }
+}
+
+private struct SwipeParticleBurst: Identifiable {
+    
+    /*
+     MARK: - Properties
+     */
+    
+    let id = UUID()
+    let direction: SwipeDirection
+}
+
+private struct SwipeParticleBurstView: View {
+    
+    /*
+     MARK: - Properties
+     */
+    
+    var direction: SwipeDirection
+    
+    @Environment(\.accessibilityReduceMotion)
+    private var accessibilityReduceMotion
+    
+    @State
+    private var isExploded: Bool = false
+    
+    /*
+     MARK: - Body
+     */
+    
+    var body: some View {
+        GeometryReader { geometryReader in
+            ZStack {
+                ForEach(0..<18, id: \.self) { index in
+                    RoundedRectangle(cornerRadius: CGFloat(3.0.scaled))
+                        .fill(direction.particleTint.opacity(particleOpacity(for: index)))
+                        .frame(
+                            width: particleSize(for: index).width,
+                            height: particleSize(for: index).height
+                        )
+                        .rotationEffect(.degrees(isExploded ? particleRotation(for: index) : 0.0))
+                        .scaleEffect(isExploded ? 0.24 : 1.0)
+                        .offset(isExploded ? endOffset(for: index, in: geometryReader.size) : startOffset(for: index))
+                        .opacity(isExploded ? 0.0 : 1.0)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .allowsHitTesting(false)
+        .onAppear {
+            guard
+                !accessibilityReduceMotion
+            else { return }
+            
+            withAnimation(.easeOut(duration: 0.5)) {
+                isExploded = true
+            }
+        }
+    }
+    
+    /*
+     MARK: - Private methods
+     */
+    
+    private func startOffset(
+        for index: Int
+    ) -> CGSize {
+        let column = CGFloat(index % 6)
+        let row = CGFloat(index / 6)
+        
+        return CGSize(
+            width: (column - 2.5) * CGFloat(30.0.scaled),
+            height: (row - 1.0) * CGFloat(36.0.scaled)
+        )
+    }
+    
+    private func endOffset(
+        for index: Int,
+        in size: CGSize
+    ) -> CGSize {
+        let row = CGFloat(index / 6)
+        let directionBias = CGFloat(index % 3) * CGFloat(18.0.scaled)
+        let verticalDirection: CGFloat = index.isMultiple(of: 2) ? -1.0 : 1.0
+        let verticalTravel = (CGFloat(70.0.scaled) + row * CGFloat(42.0.scaled)) * verticalDirection
+        let horizontalTravel = size.width * 0.34 + CGFloat(92.0.scaled) + directionBias
+        
+        return CGSize(
+            width: startOffset(for: index).width + direction.horizontalSign * horizontalTravel,
+            height: startOffset(for: index).height + verticalTravel
+        )
+    }
+    
+    private func particleSize(
+        for index: Int
+    ) -> CGSize {
+        CGSize(
+            width: CGFloat((index.isMultiple(of: 2) ? 22.0 : 14.0).scaled),
+            height: CGFloat((index.isMultiple(of: 3) ? 18.0 : 10.0).scaled)
+        )
+    }
+    
+    private func particleRotation(
+        for index: Int
+    ) -> Double {
+        let baseRotation = Double((index % 6) - 3) * 18.0
+        return baseRotation * Double(direction.horizontalSign)
+    }
+    
+    private func particleOpacity(
+        for index: Int
+    ) -> Double {
+        index.isMultiple(of: 4) ? 0.9 : 0.62
+    }
 }
 
 private struct SwipeMetricView: View {

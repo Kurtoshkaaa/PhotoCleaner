@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Lottie
 
 struct SettingsView: View {
     
@@ -16,13 +17,8 @@ struct SettingsView: View {
     @StateObject
     private var viewModel = SettingsViewModel()
     
-    @Environment(\.dismiss)
-    private var dismissAction
-    
     @AppStorage("photoCleanerAskBeforeDeletingMarkedPhotos")
     private var askBeforeDeletingMarkedPhotos: Bool = true
-    
-    var closeAction: (() -> Void)?
     
     /*
      MARK: - Body
@@ -114,7 +110,7 @@ struct SettingsView: View {
                         )
                     }
                 }
-                .padding(.top, 24.0.scaled)
+                .padding(.top, 8.0.scaled)
                 .padding(.bottom, 34.0.scaled)
                 .padding(.horizontal, 24.0.scaled)
             }
@@ -139,45 +135,28 @@ struct SettingsView: View {
     
     /*
      MARK: - Private views
-     */
+    */
     
     private var headerView: some View {
-        HStack {
-            Image("SettingsIcon")
-                .resizable()
-                .foregroundStyle(.color1)
-                .frame(width: 24.0.scaled, height: 24.0.scaled)
-            
-            Spacer()
-            
+        HStack(spacing: 2.0.scaled) {
             Text("Settings")
                 .foregroundStyle(.color1)
-                .font(.system(size: 22.0.scaled, weight: .bold))
+                .font(.system(size: 28.0.scaled, weight: .bold))
                 .multilineTextAlignment(.center)
             
-            Spacer()
-            
-            Button(action: closeSettings) {
-                Image("CloseIcon")
-                    .resizable()
-                    .foregroundStyle(.color1)
-                    .frame(width: 24.0.scaled, height: 24.0.scaled)
-            }
-            .buttonStyle(.plain)
+            LottieView(animation: .named("Settings"))
+                .playing(loopMode: .loop)
+                .valueProvider(
+                    ColorValueProvider(LottieColor(r: 1.0, g: 1.0, b: 1.0, a: 1.0)),
+                    for: AnimationKeypath(keypath: "**.Fill 1.Color")
+                )
+                .valueProvider(
+                    ColorValueProvider(LottieColor(r: 1.0, g: 1.0, b: 1.0, a: 1.0)),
+                    for: AnimationKeypath(keypath: "**.Stroke.Color")
+                )
+                .frame(width: 48.0.scaled, height: 48.0.scaled)
         }
-        .frame(height: 32.0.scaled)
-    }
-    
-    /*
-     MARK: - Private methods
-     */
-    
-    private func closeSettings() {
-        if let closeAction {
-            closeAction()
-        } else {
-            dismissAction()
-        }
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
