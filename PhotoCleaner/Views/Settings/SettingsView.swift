@@ -41,16 +41,6 @@ struct SettingsView: View {
                         
                         SettingsDivider()
                         
-                        SettingsActionRow(
-                            icon: .asset("FAQIcon"),
-                            title: "FAQ",
-                            action: {
-                                viewModel.showSupportMail()
-                            }
-                        )
-                        
-                        SettingsDivider()
-                        
                         ShareLink(item: viewModel.shareTitle) {
                             SettingsRowContent(
                                 icon: .asset("ShareIcon"),
@@ -180,6 +170,7 @@ private struct SettingsGlassGroup<Content: View>: View {
         .padding(.horizontal, 20.0.scaled)
         .background(.color1.opacity(0.04))
         .settingsGlassSurface(cornerRadius: CGFloat(16.0.scaled))
+        .clipShape(RoundedRectangle(cornerRadius: 16.0.scaled))
     }
 }
 
