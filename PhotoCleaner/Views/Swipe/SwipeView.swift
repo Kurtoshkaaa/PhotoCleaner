@@ -221,33 +221,41 @@ struct SwipeView: View {
         height: CGFloat
     ) -> some View {
         if let photo = viewModel.currentPhoto {
-            ZStack(alignment: .bottomLeading) {
-                Image(uiImage: photo.image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-                
-                LinearGradient(
-                    colors: [
-                        .black.opacity(0.0),
-                        .black.opacity(0.68)
-                    ],
-                    startPoint: .center,
-                    endPoint: .bottom
-                )
-                
-                VStack(alignment: .leading, spacing: 4.0.scaled) {
-                    Text(photo.dateTitle)
-                        .foregroundStyle(.color1)
-                        .font(.system(size: 20.0.scaled, weight: .bold))
+            GeometryReader { geometryReader in
+                ZStack(alignment: .bottomLeading) {
+                    Color.black.opacity(0.18)
                     
-                    Text(photo.resolutionTitle)
-                        .foregroundStyle(.color1.opacity(0.72))
-                        .font(.system(size: 13.0.scaled, weight: .regular))
+                    Image(uiImage: photo.image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(
+                            width: geometryReader.size.width,
+                            height: geometryReader.size.height
+                        )
+                        .clipped()
+                    
+                    LinearGradient(
+                        colors: [
+                            .black.opacity(0.0),
+                            .black.opacity(0.68)
+                        ],
+                        startPoint: .center,
+                        endPoint: .bottom
+                    )
+                    
+                    VStack(alignment: .leading, spacing: 4.0.scaled) {
+                        Text(photo.dateTitle)
+                            .foregroundStyle(.color1)
+                            .font(.system(size: 20.0.scaled, weight: .bold))
+                        
+                        Text(photo.resolutionTitle)
+                            .foregroundStyle(.color1.opacity(0.72))
+                            .font(.system(size: 13.0.scaled, weight: .regular))
+                    }
+                    .padding(18.0.scaled)
                 }
-                .padding(18.0.scaled)
             }
+            .frame(maxWidth: .infinity)
             .overlay(alignment: .topLeading) {
                 if dragOffset.width < -24.0.scaled {
                     SwipeDecisionBadge(
