@@ -345,17 +345,17 @@ struct SwipeView: View {
     private var sessionStatsView: some View {
         HStack(spacing: 10.0.scaled) {
             SwipeMetricView(
-                title: "Keep",
-                value: "\(viewModel.keptCount)",
-                systemImage: "checkmark.circle.fill",
-                tint: PhotoCleanerStyle.keepAccent
-            )
-            
-            SwipeMetricView(
                 title: "Delete",
                 value: "\(viewModel.markedForDeletionCount)",
                 systemImage: "trash.fill",
                 tint: PhotoCleanerStyle.deleteAccent
+            )
+            
+            SwipeMetricView(
+                title: "Keep",
+                value: "\(viewModel.keptCount)",
+                systemImage: "checkmark.circle.fill",
+                tint: PhotoCleanerStyle.keepAccent
             )
             
             SwipeMetricView(

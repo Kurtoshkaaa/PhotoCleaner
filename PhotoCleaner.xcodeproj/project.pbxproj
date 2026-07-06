@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		75190C542FFC28590041A75D /* AGENTS.md in Resources */ = {isa = PBXBuildFile; fileRef = 75190C532FFC28590041A75D /* AGENTS.md */; };
 		754682ED2E8462E700DC2AE5 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 754682EC2E8462E700DC2AE5 /* Lottie */; };
 		754689732E84744100DC2AE5 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 754689722E84744100DC2AE5 /* RealmSwift */; };
 		754689742E84747500DC2AE5 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 754689722E84744100DC2AE5 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -28,6 +29,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		75190C532FFC28590041A75D /* AGENTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AGENTS.md; sourceTree = "<group>"; };
 		75467F682E845F2100DC2AE5 /* PhotoCleaner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoCleaner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -70,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				75467F6A2E845F2100DC2AE5 /* PhotoCleaner */,
+				75190C532FFC28590041A75D /* AGENTS.md */,
 				75467F692E845F2100DC2AE5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -155,6 +158,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				75190C542FFC28590041A75D /* AGENTS.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
