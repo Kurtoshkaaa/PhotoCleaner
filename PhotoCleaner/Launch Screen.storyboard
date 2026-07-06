@@ -18,6 +18,13 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="SplashBackground" translatesAutoresizingMaskIntoConstraints="NO" id="r0T-HZ-JLb">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                             </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="SplashLogo" translatesAutoresizingMaskIntoConstraints="NO" id="3eu-ua-d6J">
+                                <rect key="frame" x="86.5" y="316" width="220" height="220"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="220" id="BFT-3Q-HLf"/>
+                                    <constraint firstAttribute="width" constant="220" id="ijq-C5-QP6"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="jru-gA-wgW"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -25,6 +32,8 @@
                             <constraint firstAttribute="trailing" secondItem="r0T-HZ-JLb" secondAttribute="trailing" id="HQ1-b8-JIe"/>
                             <constraint firstItem="r0T-HZ-JLb" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="TxA-Pn-0Ho"/>
                             <constraint firstItem="r0T-HZ-JLb" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="VOO-3Y-kUS"/>
+                            <constraint firstItem="3eu-ua-d6J" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Vgb-oX-sxb"/>
+                            <constraint firstItem="3eu-ua-d6J" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="b7Q-uT-o5k"/>
                             <constraint firstAttribute="bottom" secondItem="r0T-HZ-JLb" secondAttribute="bottom" id="kXs-yP-XCB"/>
                         </constraints>
                     </view>
@@ -36,5 +45,6 @@
     </scenes>
     <resources>
         <image name="SplashBackground" width="500" height="1082.6666259765625"/>
+        <image name="SplashLogo" width="240" height="240"/>
     </resources>
 </document>

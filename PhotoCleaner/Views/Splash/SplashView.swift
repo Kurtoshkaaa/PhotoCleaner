@@ -14,9 +14,16 @@ struct SplashView: View {
      */
     
     var body: some View {
-        Image("SplashBackground")
-            .resizable()
-            .ignoresSafeArea()
+        ZStack {
+            Image("SplashBackground")
+                .resizable()
+                .ignoresSafeArea()
+
+            Image("SplashLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 220.0.scaled, height: 220.0.scaled)
+        }
     }
 }
 
