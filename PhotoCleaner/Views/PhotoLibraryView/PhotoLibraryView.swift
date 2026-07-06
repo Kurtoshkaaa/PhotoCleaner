@@ -47,15 +47,7 @@ struct PhotosLibraryView: View {
         .padding(.bottom, 16.0.scaled)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background {
-            LinearGradient(
-                colors: [
-                    .color4,
-                    .color2
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            PhotoCleanerBackground()
         }
         .overlay(alignment: .top) {
             headerActionsView
@@ -78,7 +70,7 @@ struct PhotosLibraryView: View {
     
     private var headerView: some View {
         HStack(spacing: 2.0.scaled) {
-            Text("Photos")
+            Text("Library")
                 .foregroundStyle(.color1)
                 .font(.system(size: 28.0.scaled, weight: .bold))
                 .multilineTextAlignment(.center)
@@ -95,7 +87,7 @@ struct PhotosLibraryView: View {
             if !selectedPhotoIDs.isEmpty {
                 photoActionButton(
                     title: "Delete",
-                    tint: .red,
+                    tint: PhotoCleanerStyle.deleteAccent,
                     action: handleDeleteSelectedPhotos
                 )
                 .transition(.opacity.combined(with: .move(edge: .leading)))
@@ -132,7 +124,7 @@ struct PhotosLibraryView: View {
                 } else {
                     Text(title)
                         .font(.system(size: 17.0, weight: .semibold))
-                        .foregroundColor(tint)
+                        .foregroundStyle(tint)
                 }
             }
             .frame(width: 70.0.scaled, height: 24.0.scaled)
@@ -153,59 +145,53 @@ struct PhotosLibraryView: View {
         } else {
             switch viewModel.photoLibraryStatus {
             case .authorized, .limited:
-                GeometryReader { geometryReader in
-                    let columnsCount = 3
-                    let spacing: CGFloat = 2.0.scaled
-                    let totalSpacing = spacing * CGFloat(columnsCount - 1)
-                    let cell = floor((geometryReader.size.width - totalSpacing) / CGFloat(columnsCount))
-                    
-                    let columns = Array(repeating: GridItem(.fixed(cell), spacing: spacing), count: columnsCount)
-                    
-                    ScrollView(showsIndicators: false) {
-                        LazyVGrid(columns: columns, spacing: spacing) {
-                            ForEach(viewModel.photos) { photo in
-                                PhotoLibraryGridPhotoView(
-                                    photo: photo,
-                                    isSelected: selectedPhotoIDs.contains(photo.id),
-                                    isSelectionMode: isSelectionMode,
-                                    cell: cell
-                                )
-                                .onTapGesture {
-                                    handlePhotoTap(photo)
+                if viewModel.photos.isEmpty {
+                    emptyLibraryView
+                } else {
+                    GeometryReader { geometryReader in
+                        let columnsCount = 3
+                        let spacing: CGFloat = 2.0.scaled
+                        let totalSpacing = spacing * CGFloat(columnsCount - 1)
+                        let cell = floor((geometryReader.size.width - totalSpacing) / CGFloat(columnsCount))
+                        
+                        let columns = Array(repeating: GridItem(.fixed(cell), spacing: spacing), count: columnsCount)
+                        
+                        ScrollView(showsIndicators: false) {
+                            LazyVGrid(columns: columns, spacing: spacing) {
+                                ForEach(viewModel.photos) { photo in
+                                    PhotoLibraryGridPhotoView(
+                                        photo: photo,
+                                        isSelected: selectedPhotoIDs.contains(photo.id),
+                                        isSelectionMode: isSelectionMode,
+                                        cell: cell
+                                    )
+                                    .onTapGesture {
+                                        handlePhotoTap(photo)
+                                    }
                                 }
                             }
-                        }
-                        .coordinateSpace(name: photoGridCoordinateSpaceName)
-                        .simultaneousGesture(
-                            selectionDragGesture(
-                                cell: cell,
-                                spacing: spacing,
-                                columnsCount: columnsCount
+                            .coordinateSpace(name: photoGridCoordinateSpaceName)
+                            .simultaneousGesture(
+                                selectionDragGesture(
+                                    cell: cell,
+                                    spacing: spacing,
+                                    columnsCount: columnsCount
+                                )
                             )
-                        )
+                        }
                     }
                 }
             case .denied, .restricted:
-                VStack(spacing: 12.0.scaled) {
-                    Text("Allow Photo Access")
-                        .foregroundStyle(.color1)
-                        .font(.system(size: 15.0.scaled, weight: .bold))
-                    
-                    Text("Open Settings to let the app show your photo library")
-                        .foregroundStyle(.color1.opacity(0.7))
-                        .font(.system(size: 15.0.scaled, weight: .regular))
-                        .multilineTextAlignment(.center)
-                    
-                    Button("Open Settings") {
-                        guard
-                            let url = URL(string: UIApplication.openSettingsURLString)
-                        else { return }
-                        
-                        UIApplication.shared.open(url)
-                    }
-                    .frame(height: 52.0.scaled)
-                    .buttonStyle(.glass)
-                }
+                PhotoCleanerStateCard(
+                    imageName: "SplashLogo",
+                    systemImage: nil,
+                    title: "Photo Access Needed",
+                    message: "Allow access so PhotoCleaner can show your library and remove only photos you choose.",
+                    buttonTitle: "Open Settings",
+                    accent: .color4,
+                    action: openSettings
+                )
+                .padding(.horizontal, 24.0.scaled)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 
             default:
@@ -215,6 +201,20 @@ struct PhotosLibraryView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+    }
+    
+    private var emptyLibraryView: some View {
+        PhotoCleanerStateCard(
+            imageName: nil,
+            systemImage: "sparkles",
+            title: "Nothing to Clean",
+            message: "Your photo library has no items available for this session.",
+            buttonTitle: nil,
+            accent: PhotoCleanerStyle.sparkleAccent,
+            action: nil
+        )
+        .padding(.horizontal, 24.0.scaled)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
     
     private var deleteErrorBinding: Binding<Bool> {
@@ -229,6 +229,14 @@ struct PhotosLibraryView: View {
     
     private var photoGridCoordinateSpaceName: String {
         "PhotoLibraryGrid"
+    }
+    
+    private func openSettings() {
+        guard
+            let url = URL(string: UIApplication.openSettingsURLString)
+        else { return }
+        
+        UIApplication.shared.open(url)
     }
     
     /*
@@ -449,7 +457,7 @@ private struct PhotoLibraryGridPhotoView: View {
             .overlay(alignment: .topTrailing) {
                 if isSelectionMode {
                     Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .foregroundStyle(isSelected ? .red : .color1.opacity(0.86))
+                        .foregroundStyle(isSelected ? PhotoCleanerStyle.deleteAccent : .color1.opacity(0.86))
                         .font(.system(size: 22.0.scaled, weight: .semibold))
                         .padding(6.0.scaled)
                 }
@@ -457,7 +465,7 @@ private struct PhotoLibraryGridPhotoView: View {
             .overlay {
                 if isSelected {
                     RoundedRectangle(cornerRadius: 8.0.scaled)
-                        .stroke(.red, lineWidth: 2.0.scaled)
+                        .stroke(PhotoCleanerStyle.deleteAccent, lineWidth: 2.0.scaled)
                 }
             }
             .cornerRadius(8.0.scaled)

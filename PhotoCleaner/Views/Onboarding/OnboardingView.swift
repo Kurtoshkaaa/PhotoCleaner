@@ -43,7 +43,7 @@ struct OnboardingView: View {
                     }) {
                         Text(viewModel.state.buttonTitle)
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(.color1)
+                            .foregroundStyle(.color1)
                             .frame(height: 52.0.scaled)
                             .frame(maxWidth: .infinity)
                             .cornerRadius(12.0.scaled)

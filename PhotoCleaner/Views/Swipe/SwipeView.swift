@@ -56,15 +56,7 @@ struct SwipeView: View {
         .padding(.horizontal, 16.0.scaled)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background {
-            LinearGradient(
-                colors: [
-                    .color4,
-                    .color2
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            PhotoCleanerBackground()
         }
         .overlay(alignment: .top) {
             HStack {
@@ -145,7 +137,7 @@ struct SwipeView: View {
         Button(action: handleFinishSession) {
             Text("Finish")
                 .font(.system(size: 17.0, weight: .semibold))
-                .foregroundColor(.color1)
+                .foregroundStyle(.color1)
                 .frame(height: 24.0.scaled)
                 .cornerRadius(12.0.scaled)
         }
@@ -276,7 +268,7 @@ struct SwipeView: View {
                     SwipeDecisionBadge(
                         title: "Delete",
                         systemImage: "trash.fill",
-                        tint: .red
+                        tint: PhotoCleanerStyle.deleteAccent
                     )
                     .padding(20.0.scaled)
                 }
@@ -286,7 +278,7 @@ struct SwipeView: View {
                     SwipeDecisionBadge(
                         title: "Keep",
                         systemImage: "checkmark.circle.fill",
-                        tint: .green
+                        tint: PhotoCleanerStyle.keepAccent
                     )
                     .padding(20.0.scaled)
                 }
@@ -356,14 +348,14 @@ struct SwipeView: View {
                 title: "Keep",
                 value: "\(viewModel.keptCount)",
                 systemImage: "checkmark.circle.fill",
-                tint: .green
+                tint: PhotoCleanerStyle.keepAccent
             )
             
             SwipeMetricView(
                 title: "Delete",
                 value: "\(viewModel.markedForDeletionCount)",
                 systemImage: "trash.fill",
-                tint: .red
+                tint: PhotoCleanerStyle.deleteAccent
             )
             
             SwipeMetricView(
@@ -380,7 +372,7 @@ struct SwipeView: View {
             SwipeActionButton(
                 title: "Delete",
                 systemImage: "trash.fill",
-                tint: .red
+                tint: PhotoCleanerStyle.deleteAccent
             ) {
                 animateSwipe(.delete)
             }
@@ -388,7 +380,7 @@ struct SwipeView: View {
             SwipeActionButton(
                 title: "Keep",
                 systemImage: "checkmark.circle.fill",
-                tint: .green
+                tint: PhotoCleanerStyle.keepAccent
             ) {
                 animateSwipe(.keep)
             }
@@ -407,61 +399,52 @@ struct SwipeView: View {
     }
     
     private var photoAccessView: some View {
-        VStack(spacing: 14.0.scaled) {
-            Image(systemName: "photo.badge.exclamationmark")
-                .foregroundStyle(.color1)
-                .font(.system(size: 42.0.scaled, weight: .semibold))
-            
-            Text("Allow Photo Access")
-                .foregroundStyle(.color1)
-                .font(.system(size: 20.0.scaled, weight: .bold))
-            
-            Text("Open Settings to let PhotoCleaner show and delete photos you mark during a swipe session.")
-                .foregroundStyle(.color1.opacity(0.72))
-                .font(.system(size: 15.0.scaled, weight: .regular))
-                .multilineTextAlignment(.center)
-            
-            Button("Open Settings") {
-                guard
-                    let url = URL(string: UIApplication.openSettingsURLString)
-                else { return }
-                
-                UIApplication.shared.open(url)
-            }
-            .buttonStyle(.glass)
-        }
+        PhotoCleanerStateCard(
+            imageName: "SplashLogo",
+            systemImage: nil,
+            title: "Photo Access Needed",
+            message: "Allow access so Swipe can turn your library into keep-or-delete cards.",
+            buttonTitle: "Open Settings",
+            accent: .color4,
+            action: openSettings
+        )
         .padding(24.0.scaled)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var emptyPhotosView: some View {
-        ContentUnavailableView(
-            "No Photos",
-            systemImage: "photo.stack",
-            description: Text("There are no photos available for this swipe session.")
+        PhotoCleanerStateCard(
+            imageName: nil,
+            systemImage: "sparkles",
+            title: "Nothing to Swipe",
+            message: "Your current library has no photos available for this swipe session.",
+            buttonTitle: nil,
+            accent: PhotoCleanerStyle.sparkleAccent,
+            action: nil
         )
-        .foregroundStyle(.color1)
+        .padding(24.0.scaled)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var sessionCompleteView: some View {
-        VStack(spacing: 14.0.scaled) {
-            Image(systemName: "checkmark.seal.fill")
-                .foregroundStyle(.green)
-                .font(.system(size: 52.0.scaled, weight: .semibold))
-            
-            Text("Session Complete")
-                .foregroundStyle(.color1)
-                .font(.system(size: 22.0.scaled, weight: .bold))
-            
-            Text("Finish the session to choose what happens with photos marked for deletion.")
-                .foregroundStyle(.color1.opacity(0.72))
-                .font(.system(size: 15.0.scaled, weight: .regular))
-                .multilineTextAlignment(.center)
-        }
-        .padding(24.0.scaled)
+        PhotoCleanerStateCard(
+            imageName: nil,
+            systemImage: "checkmark.seal.fill",
+            title: "Session Complete",
+            message: "Finish the session to choose what happens with photos marked for deletion.",
+            buttonTitle: nil,
+            accent: PhotoCleanerStyle.keepAccent,
+            action: nil
+        )
         .frame(maxWidth: .infinity, minHeight: 470.0.scaled)
-        .swipeGlassSurface(cornerRadius: CGFloat(28.0.scaled))
+    }
+    
+    private func openSettings() {
+        guard
+            let url = URL(string: UIApplication.openSettingsURLString)
+        else { return }
+        
+        UIApplication.shared.open(url)
     }
     
     private var sessionResultBinding: Binding<Bool> {
@@ -604,9 +587,9 @@ private enum SwipeDirection {
     var particleTint: Color {
         switch self {
         case .delete:
-            return .red
+            return PhotoCleanerStyle.deleteAccent
         case .keep:
-            return .green
+            return PhotoCleanerStyle.keepAccent
         }
     }
     

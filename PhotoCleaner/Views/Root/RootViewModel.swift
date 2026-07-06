@@ -16,7 +16,7 @@ enum Section: CaseIterable, Hashable {
     var title: String {
         switch self {
         case .photo:
-            return "Photos"
+            return "Library"
         case .swipe:
             return "Swipe"
         case .settings:

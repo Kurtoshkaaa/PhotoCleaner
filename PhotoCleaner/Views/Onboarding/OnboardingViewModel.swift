@@ -18,22 +18,22 @@ enum OnboardingState: Int, CaseIterable {
     var title: String {
         switch self {
         case .welcome:
-            return "Welcome!"
+            return "Clean Photos Like a Game"
         case .permissions:
-            return "Grant Access"
+            return "Allow Photo Access"
         case .final:
-            return "All Set!"
+            return "Ready to Swipe"
         }
     }
 
     var description: String {
         switch self {
         case .welcome:
-            return "This app will make your life easier and help you get rid of unnecessary photos so you can feel happier and lighter"
+            return "Swipe right to keep the shots you love and left to mark clutter for deletion."
         case .permissions:
-            return "We need access to your photo gallery to analyze and organize your pictures. Don’t worry — your privacy is our priority"
+            return "PhotoCleaner needs access to show your library as swipe cards and delete only photos you confirm."
         case .final:
-            return "Great job! You're ready to start. We hope the app helps you succeed — let’s go inside!"
+            return "Your gallery is ready. Start a quick swipe session and sort photos in minutes."
         }
     }
 

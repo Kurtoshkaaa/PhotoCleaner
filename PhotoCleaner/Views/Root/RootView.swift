@@ -29,7 +29,7 @@ struct RootView: View {
     var body: some View {
         NavigationStack(path: $router.navigationPath) {
             TabView(selection: $selectedSection) {
-                Tab("Photos", systemImage: "photo.stack", value: Section.photo) {
+                Tab("Library", systemImage: "photo.stack", value: Section.photo) {
                     PhotosLibraryView()
                 }
                 

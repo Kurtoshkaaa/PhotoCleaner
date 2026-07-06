@@ -66,7 +66,7 @@ struct SettingsView: View {
                         
                         SettingsToggleRow(
                             icon: .system("trash.slash.fill"),
-                            title: "Confirm Delete",
+                            title: "Ask Before Delete",
                             isOn: $askBeforeDeletingMarkedPhotos
                         )
                     }
@@ -106,15 +106,7 @@ struct SettingsView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background {
-                LinearGradient(
-                    colors: [
-                        .color4.opacity(0.78),
-                        .color2
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
+                PhotoCleanerBackground()
             }
             .onAppear {
                 viewModel.setupPhotoAccessTitle()
